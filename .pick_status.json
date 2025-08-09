@@ -1,5 +1,615 @@
 [
     {
+        "sha": "c11f47481a48113588a4f942d960a8d17190cd55",
+        "description": "panvk: stop CPU mapping all index buffers on JM",
+        "nominated": false,
+        "nomination_type": 2,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": "e25064c026a333a27b203b8c1d1cf3dc7995b7b3",
+        "notes": null
+    },
+    {
+        "sha": "dbb779967c7937a95c8d83c5ad29a53ad9fd3dfd",
+        "description": "vulkan: Update enum_to_str conversion to handle AMDX enum names",
+        "nominated": false,
+        "nomination_type": 2,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": "c74ad9f1427855dff627989b670657bc8bc91c71",
+        "notes": null
+    },
+    {
+        "sha": "c58b3fa3a4edff1aeb4baa2f0af62c0f660bcd6c",
+        "description": "venus: fix a race condition in ring shmem reuse",
+        "nominated": true,
+        "nomination_type": 1,
+        "resolution": 0,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "65f3d7fb7f71f63ec4e84fcc3d0fc12ded740b24",
+        "description": "nvk: Advertise KHR_shader_untyped_pointers",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "e8fe6273f9305f3e4f6e483770fd23f9e9b4ac91",
+        "description": "anv: Advertise VK_KHR_shader_untyped_pointers",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "c74ad9f1427855dff627989b670657bc8bc91c71",
+        "description": "vulkan: Update headers/xml for 1.4.325",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "c00b167d16135ec579416f3da33e063934dfd616",
+        "description": "vulkan: Update enum_to_str conversion to handle ARM enum names",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "12cdcccf24df084da699c203641ad93bf349ff29",
+        "description": "spirv: Update headers and metadata from latest Khronos commit",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "5e9de5317e39c61ed6c8b5910bdb6eb94c22d084",
+        "description": "brw: Validate that send payloads can't be imms or have source mods",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "22165defb55f8c12f5af92d48196d956857b2c3a",
+        "description": "brw: Drop interlock and memory fence logical opcodes from is_payload()",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "ed4fadbb16748e06f8a95e776bc392b3fa36ecd1",
+        "description": "brw: Drop INTERPOLATE_AT_* opcodes from is_payload()",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "e2022017ce8e61e763a347a809e1db0edfbbf744",
+        "description": "brw: Drop uniform pull constant load virtual opcode from is_send()",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "9d5cd03ea814f0e4a92e6a63c0766cd70a26e372",
+        "description": "brw: Drop interlock and memory fence logical opcodes from is_send()",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "342ff81df00bbc6bc5442caeb5a1cd4babb0270b",
+        "description": "brw: Drop INTERPOLATE_AT_* opcodes from is_send()",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "47fe9d28e74b2f4ff6f3f6ec7ae54c3c6241af5a",
+        "description": "brw: Enumerate SHADER_OPCODE_SEND sources and standardize how many",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "00d38b980db60a8c2442bd524f5d93282deb1c7a",
+        "description": "brw: Properly resolve non-sendable sources in a few logical opcodes",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "b848fa45959b0455db8cea8350560902769717c6",
+        "description": "brw: Rename is_send_from_grf to is_send, replace other is_send() helper",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "e7d20bc86a1ee51d6aee24a8c8b68238dd9dbb5e",
+        "description": "brw: Drop inst->mlen check from is_send()",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "3c455c3532009b4282e47272af51721f19689f87",
+        "description": "brw: Stop using is_send_from_grf() in CSE pass",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "e5ed6f64d9ea2715265d14eb40fac62cd38d507b",
+        "description": "brw: Stop checking inst->is_send_from_grf() for g127 register hack",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "b0eb90ddb1b69f8acdbc81d0669d4d8bf4dbe2e8",
+        "description": "brw: Assert that EOT is always SHADER_OPCODE_SEND on pre-Xe3",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "90dbbc69bb79c4dae7e9b802409090e18f952721",
+        "description": "brw: Use BAD_FILE instead of ARF null for second send payload",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "9366968b40ae3f28de02d7b3401fce19d34501c7",
+        "description": "meson: add missing x11 dependency on libloader_x11",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "05446eee258abfbe9fb47ab8f8dd8ea9954fe73d",
+        "description": "lavapipe/ci: document recent flakes",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "33eff12590ee285fd59faf21780e3ed836ae9373",
+        "description": "llvmpipe/ci: document recent flakes",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "fc1a56161ee8b8f0fb0d29294692eeb7f7999de7",
+        "description": "llvmpipe/ci: document fixed test",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "622257f4b97944ccf8489c7b71519f8296d583da",
+        "description": "zink+radv/ci: document recent flakes",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "a1636dad433793b9a0feeea17a6f654a5d13b50b",
+        "description": "radv/ci: document recent flakes",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "d5473d0f199aa58f7e1ab22007a6f974206268df",
+        "description": "radeonsi/ci: document recent flakes",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "fb42ec316369f35e1b843c5c9afa1e5370af5eeb",
+        "description": "broadcom/ci: fix another slow & flaky CL test on rpi4",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "5a4780e44afa3e15771b4547a5ee0af60a9949b2",
+        "description": "turnip/ci: document regression in 0a12ff6f...8fe0a347",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "c64872ad56058f8a1b4dd9a919c0573ac855ab62",
+        "description": "r300/ci: document fixes tests and one regression in c64c6a0c...bf8ebb6a",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "6019ba7ee6e034996395331be3d2288ab4f58d38",
+        "description": "radeonsi/ci: document fixes test",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "9d7aaaa07294d16c5bdde947a232097cf2a890de",
+        "description": "agx: drop bounds check optimize pass",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "2610d2afaff95448a375558e2b5579bfdef25164",
+        "description": "asahi: implement KHR_shader_subgroup",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "70e3234570e48814876845d344cb4c567f6acf5b",
+        "description": "agx: lower fmin/fmax scans",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "61db1470a683301dbc7fd6560d87a8402f607c1e",
+        "description": "glsl: lower fp64 subgroup ops",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "8566a566e6d00ec224d5ddec38e4da128513845c",
+        "description": "nir: plumb ballot options",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "1af0897452fb29f0ca3603a02c3be77c49802039",
+        "description": "nir/lower_subgroups: add lower_fp64 option",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "8f88991024c0e8cf28a98fac9b2ce031b9519acb",
+        "description": "util: Remove usage of WIN32 macro for DETECT_OS_WINDOWS",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "5b51dc3bf2114b249e8e870fbaa78769bdf0a655",
+        "description": "renderdoc: Upgrade to v1.5",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "070bf8986ce08bc58d1263fefb9e2e33de9e6bf4",
+        "description": "util: Upgrade xxhash.h to v0.8.3",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "2a6ac3a79c871362003112d7957b8357e71b019b",
+        "description": "util: Add namespace over float16_t in half_float.h",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "37ee22686925dbc2b6862ada4f3c72823cb73745",
+        "description": "llvmpipe: Fix wrong pixel shader invocation count with discard",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "5b1104476f25a65304ee5d3f4c060ef8f5fce8e2",
+        "description": "vulkan/wsi/headless: drop redundant chain struct members",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "24cb071d47240787d54ca5501ad0042f7fe6e74e",
+        "description": "vulkan/wsi/headless: allow explicit modifiers",
+        "nominated": true,
+        "nomination_type": 1,
+        "resolution": 0,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "7b59d092993548d1332ffb0f4a6c81b604b5c87d",
+        "description": "venus: drop vn_trace_init",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "e74516dbc7f8843a95ef57fed5630986c154918e",
+        "description": "util/perf: amend missing atrace_init",
+        "nominated": true,
+        "nomination_type": 1,
+        "resolution": 0,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "8c59aacc10c1bdcb0b4febfe2b8068309516194d",
+        "description": "freedreno/layout: Don't align explicit layouts to page size",
+        "nominated": true,
+        "nomination_type": 2,
+        "resolution": 0,
+        "main_sha": null,
+        "because_sha": "27b0f64b3ed04c7ebf98405cd5515af44be9ee24",
+        "notes": null
+    },
+    {
+        "sha": "4838b85d6c932a4218e0e8cedf7e07068448a2cc",
+        "description": "anv: move 3DSTATE_TE::TessellationDistributionMode to dynamic path",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "ca0a509b6b02551cc68d8c7f9675b6f6b1b26bb3",
+        "description": "anv: move 3DSTATE_VFG emission to dynamic path",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "5a8e295a97ffe8ee11edac155123e80e9e0ea610",
+        "description": "anv: move 3DSTATE_CLIP emission to dynamic path",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "c8305dfe0ee41040cc3ec95d30d133c75ffd402d",
+        "description": "anv: move SBE emission to dynamic path",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "33abaf2d0edbbda77ad4a91fd201ae60f6fcc12a",
+        "description": "anv: simplify SBE emission",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "7b8a6af222b2caf87982c2abd786ce31b12ff4bf",
+        "description": "anv: move 3DSTATE_SF dynamic emission path",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "20721419e53972e41db02f88f64af58631ae4fa7",
+        "description": "anv: move primitive_replication emission to dynamic path",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "6d863fda2d5866d732117b8573ca4c163d2ea3cf",
+        "description": "anv/brw: move sample_shading_enable to wm_prog_data",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "f2696b441ddb40ae3eabba1efc46a3da3715ae4a",
+        "description": "anv/brw: store min_sample_shading on wm_prog_data",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "3fa212c4f5cfbdb5f4a724e2f24d247e3b5872fc",
+        "description": "virgl: Small fix of converting format",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "a8b27a125b4e71108da46399dbeefff90d9feec9",
+        "description": "drm/drm-shim: Add a702",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
+        "sha": "69f9a805aef01857c360d00e3cbfd5999a5e7727",
+        "description": "freedreno/drm-shim: Fix nr_rings/priorities",
+        "nominated": false,
+        "nomination_type": 0,
+        "resolution": 4,
+        "main_sha": null,
+        "because_sha": null,
+        "notes": null
+    },
+    {
         "sha": "652ef8f0c576150cd720439c28d7bbae7b476180",
         "description": "anv: fix source hash utrace prints",
         "nominated": false,
