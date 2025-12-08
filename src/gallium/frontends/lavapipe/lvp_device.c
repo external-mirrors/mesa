@@ -2023,10 +2023,8 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
                                     &physical_device->vk,
                                     &dispatch_table, pCreateInfo,
                                     pAllocator);
-   if (result != VK_SUCCESS) {
-      vk_free(&device->vk.alloc, device);
-      return result;
-   }
+   if (result != VK_SUCCESS)
+      goto fail_alloc;
 
    vk_device_enable_threaded_submit(&device->vk);
    device->vk.command_buffer_ops = &lvp_cmd_buffer_ops;
@@ -2055,10 +2053,8 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
       result = lvp_queue_init(device, &device->queue, &dummy_create_info, 0);
    }
 
-   if (result != VK_SUCCESS) {
-      vk_free(&device->vk.alloc, device);
-      return result;
-   }
+   if (result != VK_SUCCESS)
+      goto fail_queue;
 
    nir_builder b = nir_builder_init_simple_shader(MESA_SHADER_FRAGMENT, physical_device->drv_options[MESA_SHADER_FRAGMENT], "dummy_frag");
    struct pipe_shader_state shstate = {0};
@@ -2086,10 +2082,8 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
    device->group_handle_alloc = 1;
 
    result = vk_meta_device_init(&device->vk, &device->meta);
-   if (result != VK_SUCCESS) {
-      lvp_DestroyDevice(lvp_device_to_handle(device), pAllocator);
-      return result;
-   }
+   if (result != VK_SUCCESS)
+      goto fail_meta;
 
    lvp_device_init_accel_struct_state(device);
 
@@ -2097,6 +2091,20 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
 
    return VK_SUCCESS;
 
+fail_meta:
+   llvmpipe_delete_image_handle(device->pscreen, device->null_image_handle);
+   llvmpipe_delete_texture_handle(device->pscreen, device->null_texture_handle);
+   pipe_resource_reference(&device->zero_buffer, NULL);
+   simple_mtx_destroy(&device->bda_lock);
+   _mesa_hash_table_fini(&device->bda, NULL);
+   device->queue.ctx->delete_fs_state(device->queue.ctx, device->noop_fs);
+   lvp_queue_finish(&device->queue);
+fail_queue:
+   vk_device_finish(&device->vk);
+fail_alloc:
+   vk_free(&device->vk.alloc, device);
+
+   return result;
 }
 
 VKAPI_ATTR void VKAPI_CALL lvp_DestroyDevice(
