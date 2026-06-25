@@ -601,7 +601,7 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateBuffer(
       }
 
       if (pCreateInfo->flags & VK_BUFFER_CREATE_SPARSE_BINDING_BIT) {
-         buffer->map = device->queue.ctx->buffer_map(device->queue.ctx, buffer->bo, 0,
+         buffer->map = device->queue[0].ctx->buffer_map(device->queue[0].ctx, buffer->bo, 0,
                                                      PIPE_MAP_READ | PIPE_MAP_WRITE | PIPE_MAP_PERSISTENT,
                                                      &(struct pipe_box){ 0 }, &buffer->transfer);
 
@@ -632,7 +632,7 @@ VKAPI_ATTR void VKAPI_CALL lvp_DestroyBuffer(
       simple_mtx_unlock(&device->bda_lock);
 
       if (buffer->bo->flags & PIPE_RESOURCE_FLAG_SPARSE)
-         device->queue.ctx->buffer_unmap(device->queue.ctx, buffer->transfer);
+         device->queue[0].ctx->buffer_unmap(device->queue[0].ctx, buffer->transfer);
    }
    pipe_resource_reference(&buffer->bo, NULL);
    vk_buffer_destroy(&device->vk, pAllocator, &buffer->vk);
@@ -790,7 +790,7 @@ lvp_CopyMemoryToImageEXT(VkDevice _device, const VkCopyMemoryToImageInfoEXT *pCo
       if (vk_format_is_depth_or_stencil(image->vk.format) && image->vk.aspects != aspects) {
          struct pipe_transfer *xfer;
          const uint8_t *src_data = copy->pHostPointer;
-         uint8_t *dst_data = device->queue.ctx->texture_map(device->queue.ctx,
+         uint8_t *dst_data = device->queue[0].ctx->texture_map(device->queue[0].ctx,
                                                       image->planes[plane].bo,
                                                       copy->imageSubresource.mipLevel,
                                                       0,
@@ -808,9 +808,9 @@ lvp_CopyMemoryToImageEXT(VkDevice _device, const VkCopyMemoryToImageInfoEXT *pCo
                         copy->imageExtent.height,
                         box.depth,
                         src_data, src_format, buffer_layout.row_stride_B, buffer_layout.image_stride_B, 0, 0, 0);
-         pipe_texture_unmap(device->queue.ctx, xfer);
+         pipe_texture_unmap(device->queue[0].ctx, xfer);
       } else {
-         device->queue.ctx->texture_subdata(device->queue.ctx, image->planes[plane].bo, copy->imageSubresource.mipLevel, 0,
+         device->queue[0].ctx->texture_subdata(device->queue[0].ctx, image->planes[plane].bo, copy->imageSubresource.mipLevel, 0,
                                           &box, copy->pHostPointer, stride, layer_stride);
       }
    }
@@ -854,7 +854,7 @@ lvp_CopyImageToMemoryEXT(VkDevice _device, const VkCopyImageToMemoryInfoEXT *pCo
          break;
       }
       struct pipe_transfer *xfer;
-      uint8_t *data = device->queue.ctx->texture_map(device->queue.ctx, image->planes[plane].bo, copy->imageSubresource.mipLevel,
+      uint8_t *data = device->queue[0].ctx->texture_map(device->queue[0].ctx, image->planes[plane].bo, copy->imageSubresource.mipLevel,
                                                      PIPE_MAP_READ | PIPE_MAP_UNSYNCHRONIZED | PIPE_MAP_THREAD_SAFE, &box, &xfer);
       if (!data)
          return VK_ERROR_MEMORY_MAP_FAILED;
@@ -864,7 +864,7 @@ lvp_CopyImageToMemoryEXT(VkDevice _device, const VkCopyImageToMemoryInfoEXT *pCo
       util_copy_box(copy->pHostPointer, image->planes[plane].bo->format, stride, layer_stride,
                     /* offsets are all zero because texture_map handles the offset */
                     0, 0, 0, box.width, box.height, box.depth, data, xfer->stride, xfer->layer_stride, 0, 0, 0);
-      pipe_texture_unmap(device->queue.ctx, xfer);
+      pipe_texture_unmap(device->queue[0].ctx, xfer);
    }
    return VK_SUCCESS;
 }
@@ -900,7 +900,7 @@ lvp_CopyImageToImageEXT(VkDevice _device, const VkCopyImageToImageInfoEXT *pCopy
       unsigned dstz = dst_image->planes[dst_plane].bo->target == PIPE_TEXTURE_3D ?
                       pCopyImageToImageInfo->pRegions[i].dstOffset.z :
                       pCopyImageToImageInfo->pRegions[i].dstSubresource.baseArrayLayer;
-      device->queue.ctx->resource_copy_region(device->queue.ctx, dst_image->planes[dst_plane].bo,
+      device->queue[0].ctx->resource_copy_region(device->queue[0].ctx, dst_image->planes[dst_plane].bo,
                                               pCopyImageToImageInfo->pRegions[i].dstSubresource.mipLevel,
                                               pCopyImageToImageInfo->pRegions[i].dstOffset.x,
                                               pCopyImageToImageInfo->pRegions[i].dstOffset.y,

@@ -1965,6 +1965,9 @@ lvp_queue_finish(struct lvp_queue *queue)
 
    lvp_destroy_shaders(lvp_queue_device(queue), queue->ctx);
 
+   if (queue->last_fence)
+      queue->ctx->screen->fence_reference(queue->ctx->screen, &queue->last_fence, NULL);
+
    u_upload_destroy(queue->uploader);
    cso_destroy_context(queue->cso);
    queue->ctx->destroy(queue->ctx);
@@ -1984,12 +1987,13 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
 
    size_t state_size = lvp_get_rendering_state_size();
    device = vk_zalloc2(&physical_device->vk.instance->alloc, pAllocator,
-                       sizeof(*device) + state_size, 8,
+                       sizeof(*device) + state_size * LVP_NUM_QUEUES, 8,
                        VK_SYSTEM_ALLOCATION_SCOPE_DEVICE);
    if (!device)
       return vk_error(instance, VK_ERROR_OUT_OF_HOST_MEMORY);
 
-   device->queue.state = device + 1;
+   for (unsigned i = 0; i < LVP_NUM_QUEUES; i++)
+      device->queue[i].state = (char *)(device + 1) + state_size * i;
    device->poison_mem = debug_get_bool_option("LVP_POISON_MEMORY", false);
    device->print_cmds = debug_get_bool_option("LVP_CMD_DEBUG", false);
 
@@ -2017,12 +2021,17 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
    assert(pCreateInfo->queueCreateInfoCount <= LVP_NUM_QUEUES);
    if (pCreateInfo->queueCreateInfoCount) {
       assert(pCreateInfo->pQueueCreateInfos[0].queueFamilyIndex == 0);
-      assert(pCreateInfo->pQueueCreateInfos[0].queueCount == 1);
-      result = lvp_queue_init(device, &device->queue, pCreateInfo->pQueueCreateInfos, 0);
+      assert(pCreateInfo->pQueueCreateInfos[0].queueCount <= LVP_NUM_QUEUES);
+      device->queue_count = pCreateInfo->pQueueCreateInfos[0].queueCount;
+      for (uint32_t i = 0; i < device->queue_count; i++) {
+         result = lvp_queue_init(device, &device->queue[i], pCreateInfo->pQueueCreateInfos, i);
+         if (result != VK_SUCCESS)
+            break;
+      }
    } else {
       /* VK_KHR_maintenance9 allows zero queues devices used to compile shaders only.
-      *  Since we only ever create a single queue, and it has no hardward backing it,
-      *  we can just create a dummy queue on the behalf of the user.
+      *  Since the queue has no hardware backing it, we can just create a dummy
+      *  queue on the behalf of the user.
       */
       const float fake_priority = 1.0f;
       const VkDeviceQueueCreateInfo dummy_create_info = {
@@ -2033,7 +2042,8 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
          .queueCount = 1,
          .pQueuePriorities = &fake_priority
       };
-      result = lvp_queue_init(device, &device->queue, &dummy_create_info, 0);
+      device->queue_count = 1;
+      result = lvp_queue_init(device, &device->queue[0], &dummy_create_info, 0);
    }
 
    if (result != VK_SUCCESS)
@@ -2043,12 +2053,12 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
    struct pipe_shader_state shstate = {0};
    shstate.type = PIPE_SHADER_IR_NIR;
    shstate.ir.nir = b.shader;
-   device->noop_fs = device->queue.ctx->create_fs_state(device->queue.ctx, &shstate);
+   device->noop_fs = device->queue[0].ctx->create_fs_state(device->queue[0].ctx, &shstate);
    _mesa_hash_table_init(&device->bda, NULL, _mesa_hash_pointer, _mesa_key_pointer_equal);
    simple_mtx_init(&device->bda_lock, mtx_plain);
 
    uint32_t zero = 0;
-   device->zero_buffer = pipe_buffer_create_with_data(device->queue.ctx, 0, PIPE_USAGE_IMMUTABLE, sizeof(uint32_t), &zero);
+   device->zero_buffer = pipe_buffer_create_with_data(device->queue[0].ctx, 0, PIPE_USAGE_IMMUTABLE, sizeof(uint32_t), &zero);
 
    struct pipe_sampler_state null_sampler = {
       .seamless_cube_map = 1,
@@ -2080,9 +2090,12 @@ fail_meta:
    pipe_resource_reference(&device->zero_buffer, NULL);
    simple_mtx_destroy(&device->bda_lock);
    _mesa_hash_table_fini(&device->bda, NULL);
-   device->queue.ctx->delete_fs_state(device->queue.ctx, device->noop_fs);
-   lvp_queue_finish(&device->queue);
+   device->queue[0].ctx->delete_fs_state(device->queue[0].ctx, device->noop_fs);
 fail_queue:
+   vk_foreach_queue_safe(iter, &device->vk) {
+      struct lvp_queue *queue = container_of(iter, struct lvp_queue, vk);
+      lvp_queue_finish(queue);
+   }
    util_dynarray_fini(&device->shader_destroys);
    simple_mtx_destroy(&device->shader_destroys_lock);
    vk_device_finish(&device->vk);
@@ -2113,15 +2126,14 @@ VKAPI_ATTR void VKAPI_CALL lvp_DestroyDevice(
    llvmpipe_delete_texture_handle(device->pscreen, device->null_texture_handle);
    llvmpipe_delete_image_handle(device->pscreen, device->null_image_handle);
 
-   device->queue.ctx->delete_fs_state(device->queue.ctx, device->noop_fs);
+   device->queue[0].ctx->delete_fs_state(device->queue[0].ctx, device->noop_fs);
 
-   if (device->queue.last_fence)
-      device->pscreen->fence_reference(device->pscreen, &device->queue.last_fence, NULL);
    _mesa_hash_table_fini(&device->bda, NULL);
    simple_mtx_destroy(&device->bda_lock);
    pipe_resource_reference(&device->zero_buffer, NULL);
 
-   lvp_queue_finish(&device->queue);
+   for (uint32_t i = 0; i < device->queue_count; i++)
+      lvp_queue_finish(&device->queue[i]);
    util_dynarray_fini(&device->shader_destroys);
    simple_mtx_destroy(&device->shader_destroys_lock);
    vk_device_finish(&device->vk);

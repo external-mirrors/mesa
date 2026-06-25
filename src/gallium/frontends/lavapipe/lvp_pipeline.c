@@ -761,12 +761,14 @@ lvp_pipeline_xfb_init(struct lvp_pipeline *pipeline)
 static void *
 lvp_shader_compile_stage(struct lvp_device *device, struct lvp_shader *shader, nir_shader *nir)
 {
+   struct pipe_context *ctx = device->queue[0].ctx;
+
    if (nir->info.stage == MESA_SHADER_COMPUTE) {
       struct pipe_compute_state shstate = {0};
       shstate.prog = nir;
       shstate.ir_type = PIPE_SHADER_IR_NIR;
       shstate.static_shared_mem = nir->info.shared_size;
-      return device->queue.ctx->create_compute_state(device->queue.ctx, &shstate);
+      return ctx->create_compute_state(ctx, &shstate);
    } else {
       struct pipe_shader_state shstate = {0};
       shstate.type = PIPE_SHADER_IR_NIR;
@@ -775,19 +777,19 @@ lvp_shader_compile_stage(struct lvp_device *device, struct lvp_shader *shader, n
 
       switch (nir->info.stage) {
       case MESA_SHADER_FRAGMENT:
-         return device->queue.ctx->create_fs_state(device->queue.ctx, &shstate);
+         return ctx->create_fs_state(ctx, &shstate);
       case MESA_SHADER_VERTEX:
-         return device->queue.ctx->create_vs_state(device->queue.ctx, &shstate);
+         return ctx->create_vs_state(ctx, &shstate);
       case MESA_SHADER_GEOMETRY:
-         return device->queue.ctx->create_gs_state(device->queue.ctx, &shstate);
+         return ctx->create_gs_state(ctx, &shstate);
       case MESA_SHADER_TESS_CTRL:
-         return device->queue.ctx->create_tcs_state(device->queue.ctx, &shstate);
+         return ctx->create_tcs_state(ctx, &shstate);
       case MESA_SHADER_TESS_EVAL:
-         return device->queue.ctx->create_tes_state(device->queue.ctx, &shstate);
+         return ctx->create_tes_state(ctx, &shstate);
       case MESA_SHADER_TASK:
-         return device->queue.ctx->create_ts_state(device->queue.ctx, &shstate);
+         return ctx->create_ts_state(ctx, &shstate);
       case MESA_SHADER_MESH:
-         return device->queue.ctx->create_ms_state(device->queue.ctx, &shstate);
+         return ctx->create_ms_state(ctx, &shstate);
       default:
          UNREACHABLE("illegal shader");
          break;

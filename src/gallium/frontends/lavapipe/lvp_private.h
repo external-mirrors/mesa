@@ -215,7 +215,8 @@ struct lvp_pipeline_cache {
 struct lvp_device {
    struct vk_device vk;
 
-   struct lvp_queue queue;
+   struct lvp_queue queue[LVP_NUM_QUEUES];
+   uint32_t queue_count;
    struct pipe_screen *pscreen;
    void *noop_fs;
    simple_mtx_t bda_lock;
