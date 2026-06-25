@@ -99,7 +99,7 @@ typedef uint32_t xcb_window_t;
 extern "C" {
 #endif
 
-#define LVP_NUM_QUEUES 1
+#define LVP_NUM_QUEUES 2
 #define MAX_SETS 8
 #define MAX_DESCRIPTORS ((1<<20) - (1<<15)) /* Required by VK_EXT_descriptor_heap */
 #define MAX_PUSH_CONSTANTS_SIZE 256

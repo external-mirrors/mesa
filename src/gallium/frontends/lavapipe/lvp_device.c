@@ -1778,7 +1778,7 @@ VKAPI_ATTR void VKAPI_CALL lvp_GetPhysicalDeviceQueueFamilyProperties2(
          VK_QUEUE_COMPUTE_BIT |
          VK_QUEUE_TRANSFER_BIT |
          (DETECT_OS_LINUX ? VK_QUEUE_SPARSE_BINDING_BIT : 0),
-         .queueCount = 1,
+         .queueCount = LVP_NUM_QUEUES,
          .timestampValidBits = 64,
          .minImageTransferGranularity = (VkExtent3D) { 1, 1, 1 },
       };
