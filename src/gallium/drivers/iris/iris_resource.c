@@ -915,8 +915,10 @@ iris_resource_configure_main(const struct iris_screen *screen,
             (templ->bind & PIPE_BIND_SHARED))
       usage |= ISL_SURF_USAGE_DISABLE_AUX_BIT;
 
-   else if (!res->mod_info && res->external_format != PIPE_FORMAT_NONE)
+   else if (!res->mod_info && res->external_format != PIPE_FORMAT_NONE) {
       usage |= ISL_SURF_USAGE_DISABLE_AUX_BIT;
+      usage |= ISL_SURF_USAGE_PREFER_4K_ALIGNMENT;
+   }
 
    else if (templ->bind & PIPE_BIND_CONST_BW)
       usage |= ISL_SURF_USAGE_DISABLE_AUX_BIT;

@@ -1934,13 +1934,16 @@ anv_image_init(struct anv_device *device, struct anv_image *image,
          VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
    }
 
-   /* Disable aux if image supports export without modifiers. */
+   /* Disable aux and normalize tiling decisions if an image supports export
+    * without modifiers.
+    */
    if (image->vk.external_handle_types != 0 &&
        image->vk.tiling != VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT) {
       anv_perf_warn(VK_LOG_OBJS(&image->vk.base),
                     "Disabling aux: "
                     "external image without DRM modifier");
       isl_extra_usage_flags |= ISL_SURF_USAGE_DISABLE_AUX_BIT;
+      isl_extra_usage_flags |= ISL_SURF_USAGE_PREFER_4K_ALIGNMENT;
    }
 
    if (device->queue_count > 1) {
