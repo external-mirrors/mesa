@@ -3038,8 +3038,8 @@ _isl_notify_failure(const struct isl_surf_init_info *surf_info,
 
    snprintf(msg + ret, sizeof(msg) - ret,
             " extent=%ux%ux%u dim=%s msaa=%ux levels=%u rpitch=%u fmt=%s "
-            "usages=%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s "
-            "tiling_flags=%s%s%s%s%s%s%s%s%s%s%s%s",
+            "usages=%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s "
+            "tiling_flags=%s%s%s%s%s%s%s%s%s%s%s%s%s",
             surf_info->width, surf_info->height,
             surf_info->dim == ISL_SURF_DIM_3D ?
             surf_info->depth : surf_info->array_len,
@@ -3056,6 +3056,7 @@ _isl_notify_failure(const struct isl_surf_init_info *surf_info,
             PRINT_USAGE(CUBE,                "cube"),
             PRINT_USAGE(DISABLE_AUX,         "noaux"),
             PRINT_USAGE(DISPLAY,             "disp"),
+            PRINT_USAGE(STORAGE,             "stor"),
             PRINT_USAGE(HIZ,                 "hiz"),
             PRINT_USAGE(MCS,                 "mcs"),
             PRINT_USAGE(CCS,                 "ccs"),
@@ -3063,6 +3064,7 @@ _isl_notify_failure(const struct isl_surf_init_info *surf_info,
             PRINT_USAGE(INDEX_BUFFER,        "ib"),
             PRINT_USAGE(CONSTANT_BUFFER,     "const"),
             PRINT_USAGE(STAGING,             "stage"),
+            PRINT_USAGE(2D_3D_COMPATIBLE,    "2d-3d-compat"),
             PRINT_USAGE(SPARSE,              "sparse"),
             PRINT_USAGE(NO_AUX_TT_ALIGNMENT, "no-aux-align"),
 
@@ -3076,6 +3078,7 @@ _isl_notify_failure(const struct isl_surf_init_info *surf_info,
             PRINT_TILING(ICL_Ys,         "icl-Ys"),
             PRINT_TILING(4,              "4"),
             PRINT_TILING(64,             "64"),
+            PRINT_TILING(64_XE2,         "64"),
             PRINT_TILING(HIZ,            "hiz"),
             PRINT_TILING(CCS,            "ccs"));
 
