@@ -2246,8 +2246,7 @@ isl_choose_miptail_start_level(const struct isl_device *dev,
       return 15;
    }
 
-   assert(isl_tiling_is_64(tile_info->tiling) ||
-          isl_tiling_is_std_y(tile_info->tiling));
+   assert(isl_tiling_is_standard(tile_info->tiling));
    assert(info->samples == 1);
 
    uint32_t max_miptail_levels = tile_info->max_miptail_levels;
@@ -2540,8 +2539,7 @@ isl_calc_phys_slice0_extent_sa_gfx4_2d(
 
       if (l >= miptail_start_level) {
          assert(l == miptail_start_level);
-         assert(isl_tiling_is_64(tile_info->tiling) ||
-                isl_tiling_is_std_y(tile_info->tiling));
+         assert(isl_tiling_is_standard(tile_info->tiling));
          assert(w == tile_info->logical_extent_el.w * fmtl->bw);
          assert(h == tile_info->logical_extent_el.h * fmtl->bh);
          /* If we've gone into the miptail, we're done.  All higher miplevels
@@ -2583,8 +2581,7 @@ isl_calc_phys_total_extent_el_gfx4_2d(
                                            array_pitch_span,
                                            &phys_slice0_sa);
 
-   if (isl_tiling_is_64(tile_info->tiling) ||
-       isl_tiling_is_std_y(tile_info->tiling)) {
+   if (isl_tiling_is_standard(tile_info->tiling)) {
       *phys_total_el = (struct isl_extent4d) {
          .w = isl_align_div_npot(phys_slice0_sa.w, fmtl->bw),
          .h = isl_align_div_npot(phys_slice0_sa.h, fmtl->bh),
@@ -4541,8 +4538,7 @@ get_image_offset_sa_gfx4_2d(const struct isl_surf *surf,
       (surf->msaa_layout == ISL_MSAA_LAYOUT_ARRAY ? surf->samples : 1);
 
    uint32_t x = 0, y;
-   if (isl_tiling_is_std_y(surf->tiling) ||
-       isl_tiling_is_64(surf->tiling)) {
+   if (isl_tiling_is_standard(surf->tiling)) {
       y = 0;
       if (surf->dim == ISL_SURF_DIM_3D) {
          *z_offset_sa = logical_array_layer;
@@ -5116,8 +5112,7 @@ isl_surf_get_uncompressed_surf(const struct isl_device *dev,
    /* If we ever enable 3D block formats, we'll need to re-think this */
    assert(fmtl->bd == 1);
 
-   if (isl_tiling_is_std_y(surf->tiling) ||
-       isl_tiling_is_64(surf->tiling)) {
+   if (isl_tiling_is_standard(surf->tiling)) {
       /* If the requested level is not part of the miptail, we just offset to
        * the requested level. Because we're using standard tilings and aren't
        * in the miptail, arrays and 3D textures should just work so long as we

@@ -2613,8 +2613,7 @@ iris_transfer_map(struct pipe_context *ctx,
    /* Disable support for tilings that are not supported by ISL's tiled-memcpy
     * functions.
     */
-   if (isl_tiling_is_64(res->surf.tiling) ||
-       isl_tiling_is_std_y(res->surf.tiling))
+   if (isl_tiling_is_standard(res->surf.tiling))
       usage &= ~PIPE_MAP_DIRECTLY;
 
    if (!(usage & PIPE_MAP_DIRECTLY)) {
@@ -2739,8 +2738,7 @@ iris_texture_subdata(struct pipe_context *ctx,
     * TODO: Teach isl_memcpy_linear_to_tiled about Tile64...
     */
    if (surf->tiling == ISL_TILING_LINEAR ||
-       isl_tiling_is_64(res->surf.tiling) ||
-       isl_tiling_is_std_y(res->surf.tiling) ||
+       isl_tiling_is_standard(res->surf.tiling) ||
        isl_aux_usage_has_compression(res->aux.usage) ||
        resource_is_busy(ice, res) ||
        iris_bo_mmap_mode(res->bo) == IRIS_MMAP_NONE) {

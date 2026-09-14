@@ -384,7 +384,7 @@ choose_isl_tiling_flags(const struct intel_device_info *devinfo,
          /* Disable support for tilings that are not supported by ISL's
           * tiled-memcpy functions.
           */
-         flags = ~(ISL_TILING_STD_64_MASK | ISL_TILING_STD_Y_MASK);
+         flags = ~ISL_TILING_STANDARD_MASK;
       } else {
          flags = ISL_TILING_ANY_MASK;
       }
