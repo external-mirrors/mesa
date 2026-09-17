@@ -3838,9 +3838,11 @@ isl_surf_init_s(const struct isl_device *dev,
          print_info(&info_one_tiling, "Saved %d 4KB page(s).",
                     (int)(surf->size_B - tmp_surf.size_B) / 4096);
          *surf = tmp_surf;
-      } else if (tmp_surf.size_B == surf->size_B &&
+      } else if (100 * tmp_surf.size_B <= 110 * surf->size_B &&
                  (info_one_tiling.tiling_flags & ISL_TILING_STD_64KB_MASK)) {
-         print_info(&info_one_tiling, "Increased tile size.");
+         print_info(&info_one_tiling,
+                    "Increased tile size (*=%.3f).",
+                    (float)tmp_surf.size_B / surf->size_B);
          *surf = tmp_surf;
       }
    }
