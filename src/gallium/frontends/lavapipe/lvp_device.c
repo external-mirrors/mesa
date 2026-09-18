@@ -1894,8 +1894,6 @@ lvp_queue_submit(struct vk_queue *vk_queue,
    if (result != VK_SUCCESS)
       return result;
 
-   simple_mtx_lock(&queue->lock);
-
    for (uint32_t i = 0; i < submit->buffer_bind_count; i++) {
       VkSparseBufferMemoryBindInfo *bind = &submit->buffer_binds[i];
 
@@ -1920,8 +1918,6 @@ lvp_queue_submit(struct vk_queue *vk_queue,
 
       lvp_execute_cmds(device, queue, cmd_buffer);
    }
-
-   simple_mtx_unlock(&queue->lock);
 
    if (submit->command_buffer_count > 0)
       queue->ctx->flush(queue->ctx, &queue->last_fence, 0);
@@ -1958,8 +1954,6 @@ lvp_queue_init(struct lvp_device *device, struct lvp_queue *queue,
 
    queue->vk.driver_submit = lvp_queue_submit;
 
-   simple_mtx_init(&queue->lock, mtx_plain);
-
    return VK_SUCCESS;
 }
 
@@ -1970,7 +1964,6 @@ lvp_queue_finish(struct lvp_queue *queue)
    cso_unbind_context(queue->cso);
 
    lvp_destroy_shaders(lvp_queue_device(queue), queue->ctx);
-   simple_mtx_destroy(&queue->lock);
 
    u_upload_destroy(queue->uploader);
    cso_destroy_context(queue->cso);

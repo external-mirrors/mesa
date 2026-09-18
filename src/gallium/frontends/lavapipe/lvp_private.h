@@ -199,7 +199,6 @@ struct lvp_queue {
    struct u_upload_mgr *uploader;
    struct pipe_fence_handle *last_fence;
    void *state;
-   simple_mtx_t lock;
 };
 
 static inline struct lvp_device *
