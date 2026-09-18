@@ -199,7 +199,6 @@ struct lvp_queue {
    struct u_upload_mgr *uploader;
    struct pipe_fence_handle *last_fence;
    void *state;
-   struct util_dynarray pipeline_destroys;
    simple_mtx_t lock;
 };
 
@@ -235,6 +234,9 @@ struct lvp_device {
 
    struct vk_meta_device meta;
    struct vk_acceleration_structure_build_args accel_struct_args;
+
+   struct util_dynarray shader_destroys;
+   simple_mtx_t shader_destroys_lock;
 };
 
 static inline const struct lvp_physical_device *
@@ -543,7 +545,6 @@ struct lvp_pipeline {
    bool line_rectangular;
    bool library;
    bool compiled;
-   bool used;
    bool heaps;
 
    struct {
@@ -805,7 +806,10 @@ lvp_image_aspects_to_plane(ASSERTED const struct lvp_image *image,
 }
 
 void
-lvp_pipeline_destroy(struct lvp_device *device, struct lvp_pipeline *pipeline, bool locked);
+lvp_pipeline_destroy(struct lvp_device *device, struct lvp_pipeline *pipeline);
+
+void
+lvp_destroy_shaders(struct lvp_device *device, struct pipe_context *ctx);
 
 void
 queue_thread_noop(void *data, void *gdata, int thread_index);

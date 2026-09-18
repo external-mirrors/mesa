@@ -1881,17 +1881,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_icdGetInstanceProcAddr(
    return lvp_GetInstanceProcAddr(instance, pName);
 }
 
-static void
-destroy_pipelines(struct lvp_queue *queue)
-{
-   struct lvp_device *device = lvp_queue_device(queue);
-   simple_mtx_lock(&queue->lock);
-   while (util_dynarray_contains(&queue->pipeline_destroys, struct lvp_pipeline*)) {
-      lvp_pipeline_destroy(device, util_dynarray_pop(&queue->pipeline_destroys, struct lvp_pipeline*), true);
-   }
-   simple_mtx_unlock(&queue->lock);
-}
-
 static VkResult
 lvp_queue_submit(struct vk_queue *vk_queue,
                  struct vk_queue_submit *submit)
@@ -1942,7 +1931,7 @@ lvp_queue_submit(struct vk_queue *vk_queue,
          vk_sync_as_lvp_pipe_sync(submit->signals[i].sync);
       lvp_pipe_sync_signal_with_fence(device, sync, queue->last_fence);
    }
-   destroy_pipelines(queue);
+   lvp_destroy_shaders(device, queue->ctx);
 
    return VK_SUCCESS;
 }
@@ -1970,7 +1959,6 @@ lvp_queue_init(struct lvp_device *device, struct lvp_queue *queue,
    queue->vk.driver_submit = lvp_queue_submit;
 
    simple_mtx_init(&queue->lock, mtx_plain);
-   queue->pipeline_destroys = UTIL_DYNARRAY_INIT;
 
    return VK_SUCCESS;
 }
@@ -1981,9 +1969,8 @@ lvp_queue_finish(struct lvp_queue *queue)
    vk_queue_finish(&queue->vk);
    cso_unbind_context(queue->cso);
 
-   destroy_pipelines(queue);
+   lvp_destroy_shaders(lvp_queue_device(queue), queue->ctx);
    simple_mtx_destroy(&queue->lock);
-   util_dynarray_fini(&queue->pipeline_destroys);
 
    u_upload_destroy(queue->uploader);
    cso_destroy_context(queue->cso);
@@ -2030,6 +2017,9 @@ VKAPI_ATTR VkResult VKAPI_CALL lvp_CreateDevice(
    device->vk.command_buffer_ops = &lvp_cmd_buffer_ops;
 
    device->pscreen = physical_device->pscreen;
+
+   device->shader_destroys = UTIL_DYNARRAY_INIT;
+   simple_mtx_init(&device->shader_destroys_lock, mtx_plain);
 
    assert(pCreateInfo->queueCreateInfoCount <= LVP_NUM_QUEUES);
    if (pCreateInfo->queueCreateInfoCount) {
@@ -2100,6 +2090,8 @@ fail_meta:
    device->queue.ctx->delete_fs_state(device->queue.ctx, device->noop_fs);
    lvp_queue_finish(&device->queue);
 fail_queue:
+   util_dynarray_fini(&device->shader_destroys);
+   simple_mtx_destroy(&device->shader_destroys_lock);
    vk_device_finish(&device->vk);
 fail_alloc:
    vk_free(&device->vk.alloc, device);
@@ -2137,6 +2129,8 @@ VKAPI_ATTR void VKAPI_CALL lvp_DestroyDevice(
    pipe_resource_reference(&device->zero_buffer, NULL);
 
    lvp_queue_finish(&device->queue);
+   util_dynarray_fini(&device->shader_destroys);
+   simple_mtx_destroy(&device->shader_destroys_lock);
    vk_device_finish(&device->vk);
    vk_free(&device->vk.alloc, device);
 }

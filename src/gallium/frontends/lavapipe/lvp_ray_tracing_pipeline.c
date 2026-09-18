@@ -1190,7 +1190,7 @@ lvp_create_ray_tracing_pipeline(VkDevice _device, const VkAllocationCallbacks *a
    return VK_SUCCESS;
 
 fail:
-   lvp_pipeline_destroy(device, pipeline, false);
+   lvp_pipeline_destroy(device, pipeline);
    return result;
 }
 

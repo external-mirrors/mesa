@@ -43,22 +43,51 @@
 
 typedef void (*cso_destroy_func)(struct pipe_context*, void*);
 
+struct lvp_retired_cso {
+   mesa_shader_stage stage;
+   void *cso;
+};
+
 static void
-shader_destroy(struct lvp_device *device, struct lvp_shader *shader, bool locked)
+retire_cso(struct lvp_device *device, mesa_shader_stage stage, void *cso)
+{
+   struct lvp_retired_cso retired = { stage, cso };
+
+   simple_mtx_lock(&device->shader_destroys_lock);
+   util_dynarray_append(&device->shader_destroys, retired);
+   simple_mtx_unlock(&device->shader_destroys_lock);
+}
+
+void
+lvp_destroy_shaders(struct lvp_device *device, struct pipe_context *ctx)
+{
+   cso_destroy_func destroy[] = {
+      ctx->delete_vs_state,
+      ctx->delete_tcs_state,
+      ctx->delete_tes_state,
+      ctx->delete_gs_state,
+      ctx->delete_fs_state,
+      ctx->delete_compute_state,
+      ctx->delete_ts_state,
+      ctx->delete_ms_state,
+   };
+
+   simple_mtx_lock(&device->shader_destroys_lock);
+   struct util_dynarray shaders = device->shader_destroys;
+   device->shader_destroys = UTIL_DYNARRAY_INIT;
+   simple_mtx_unlock(&device->shader_destroys_lock);
+
+   util_dynarray_foreach(&shaders, struct lvp_retired_cso, retired)
+      destroy[retired->stage](ctx, retired->cso);
+   util_dynarray_fini(&shaders);
+}
+
+static void
+shader_destroy(struct lvp_device *device, struct lvp_shader *shader)
 {
    if (!shader->pipeline_nir)
       return;
    mesa_shader_stage stage = shader->pipeline_nir->nir->info.stage;
-   cso_destroy_func destroy[] = {
-      device->queue.ctx->delete_vs_state,
-      device->queue.ctx->delete_tcs_state,
-      device->queue.ctx->delete_tes_state,
-      device->queue.ctx->delete_gs_state,
-      device->queue.ctx->delete_fs_state,
-      device->queue.ctx->delete_compute_state,
-      device->queue.ctx->delete_ts_state,
-      device->queue.ctx->delete_ms_state,
-   };
 
    if (shader->heaps && shader->embedded_samplers) {
       pipe_resource_reference(&shader->embedded_samplers, NULL);
@@ -66,30 +95,24 @@ shader_destroy(struct lvp_device *device, struct lvp_shader *shader, bool locked
       device->pscreen->free_memory(device->pscreen, shader->embedded_samplers_memory);
    }
 
-   if (!locked)
-      simple_mtx_lock(&device->queue.lock);
-
    if (shader->shader_cso)
-      destroy[stage](device->queue.ctx, shader->shader_cso);
-
-   if (!locked)
-      simple_mtx_unlock(&device->queue.lock);
+      retire_cso(device, stage, shader->shader_cso);
 
    lvp_pipeline_nir_ref(&shader->pipeline_nir, NULL);
 }
 
 void
-lvp_pipeline_destroy(struct lvp_device *device, struct lvp_pipeline *pipeline, bool locked)
+lvp_pipeline_destroy(struct lvp_device *device, struct lvp_pipeline *pipeline)
 {
    lvp_forall_stage(i)
-      shader_destroy(device, &pipeline->shaders[i], locked);
+      shader_destroy(device, &pipeline->shaders[i]);
 
    if (pipeline->layout)
       vk_pipeline_layout_unref(&device->vk, &pipeline->layout->vk);
 
    for (unsigned i = 0; i < pipeline->num_groups; i++) {
       VK_FROM_HANDLE(lvp_pipeline, p, pipeline->groups[i]);
-      lvp_pipeline_destroy(device, p, locked);
+      lvp_pipeline_destroy(device, p);
    }
 
    if (pipeline->rt.stages) {
@@ -116,13 +139,7 @@ VKAPI_ATTR void VKAPI_CALL lvp_DestroyPipeline(
    if (!_pipeline)
       return;
 
-   if (pipeline->used) {
-      simple_mtx_lock(&device->queue.lock);
-      util_dynarray_append(&device->queue.pipeline_destroys, pipeline);
-      simple_mtx_unlock(&device->queue.lock);
-   } else {
-      lvp_pipeline_destroy(device, pipeline, false);
-   }
+   lvp_pipeline_destroy(device, pipeline);
 }
 
 static void
@@ -1277,7 +1294,7 @@ VKAPI_ATTR void VKAPI_CALL lvp_DestroyShaderEXT(
 
    if (!shader)
       return;
-   shader_destroy(device, shader, false);
+   shader_destroy(device, shader);
 
    vk_pipeline_layout_unref(&device->vk, &shader->layout->vk);
    blob_finish(&shader->blob);
