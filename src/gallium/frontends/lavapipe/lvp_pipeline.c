@@ -780,20 +780,12 @@ lvp_shader_compile_stage(struct lvp_device *device, struct lvp_shader *shader, n
 }
 
 void *
-lvp_shader_compile(struct lvp_device *device, struct lvp_shader *shader, nir_shader *nir, bool locked)
+lvp_shader_compile(struct lvp_device *device, struct lvp_shader *shader, nir_shader *nir)
 {
    const struct lvp_physical_device *pdev = lvp_device_physical(device);
    pdev->pscreen->finalize_nir(pdev->pscreen, nir, true);
 
-   if (!locked)
-      simple_mtx_lock(&device->queue.lock);
-
-   void *state = lvp_shader_compile_stage(device, shader, nir);
-
-   if (!locked)
-      simple_mtx_unlock(&device->queue.lock);
-
-   return state;
+   return lvp_shader_compile_stage(device, shader, nir);
 }
 
 #ifndef NDEBUG
@@ -1057,7 +1049,7 @@ lvp_graphics_pipeline_init(struct lvp_pipeline *pipeline,
    }
 
    if (!libstate && !pipeline->library) {
-      lvp_pipeline_shaders_compile(pipeline, false);
+      lvp_pipeline_shaders_compile(pipeline);
    }
 
    return VK_SUCCESS;
@@ -1072,7 +1064,7 @@ fail:
 }
 
 void
-lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline, bool locked)
+lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline)
 {
    struct lvp_device *device = lvp_pipeline_device(pipeline);
    if (pipeline->compiled)
@@ -1085,7 +1077,7 @@ lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline, bool locked)
       assert(stage == pipeline->shaders[i].pipeline_nir->nir->info.stage);
 
       pipeline->shaders[stage].shader_cso = lvp_shader_compile(device, &pipeline->shaders[stage],
-         nir_shader_clone(NULL, pipeline->shaders[stage].pipeline_nir->nir), locked);
+         nir_shader_clone(NULL, pipeline->shaders[stage].pipeline_nir->nir));
    }
    pipeline->compiled = true;
 }
@@ -1192,7 +1184,7 @@ lvp_compute_pipeline_init(struct lvp_pipeline *pipeline,
       return result;
 
    struct lvp_shader *shader = &pipeline->shaders[MESA_SHADER_COMPUTE];
-   shader->shader_cso = lvp_shader_compile(device, shader, nir_shader_clone(NULL, shader->pipeline_nir->nir), false);
+   shader->shader_cso = lvp_shader_compile(device, shader, nir_shader_clone(NULL, shader->pipeline_nir->nir));
    pipeline->compiled = true;
    return VK_SUCCESS;
 }
@@ -1410,7 +1402,7 @@ create_shader_object(struct lvp_device *device, const VkShaderCreateInfoEXT *pCr
    if (shader->embedded_samplers)
       blob_write_bytes(&shader->blob, shader->embedded_samplers_map, embedded_samplers_size);
 
-   shader->shader_cso = lvp_shader_compile(device, shader, nir_shader_clone(NULL, nir), false);
+   shader->shader_cso = lvp_shader_compile(device, shader, nir_shader_clone(NULL, nir));
    return lvp_shader_to_handle(shader);
 fail:
    ralloc_free(nir);

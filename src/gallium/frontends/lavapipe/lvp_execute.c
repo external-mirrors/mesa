@@ -892,7 +892,7 @@ static void handle_graphics_pipeline(struct lvp_pipeline *pipeline,
                                      struct rendering_state *state)
 {
    const struct vk_graphics_pipeline_state *ps = &pipeline->graphics_state;
-   lvp_pipeline_shaders_compile(pipeline, true);
+   lvp_pipeline_shaders_compile(pipeline);
    unbind_graphics_stages(state,
                           (~pipeline->graphics_state.shader_stages) &
                           (VK_SHADER_STAGE_ALL_GRAPHICS |

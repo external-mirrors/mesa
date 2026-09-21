@@ -590,7 +590,7 @@ struct lvp_exec_graph_internal_data {
 };
 
 void
-lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline, bool locked);
+lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline);
 
 struct lvp_event {
    struct vk_object_base base;
@@ -821,7 +821,7 @@ void
 lvp_shader_optimize(nir_shader *nir);
 
 void *
-lvp_shader_compile(struct lvp_device *device, struct lvp_shader *shader, nir_shader *nir, bool locked);
+lvp_shader_compile(struct lvp_device *device, struct lvp_shader *shader, nir_shader *nir);
 
 enum vk_cmd_type
 lvp_nv_dgc_token_to_cmd_type(const VkIndirectCommandsLayoutTokenNV *token);

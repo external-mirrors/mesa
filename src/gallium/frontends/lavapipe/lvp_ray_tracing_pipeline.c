@@ -1126,7 +1126,7 @@ lvp_compile_ray_tracing_pipeline(struct lvp_pipeline *pipeline,
    if (pipeline->layout)
       shader->push_constant_size = pipeline->layout->push_constant_size;
 
-   shader->shader_cso = lvp_shader_compile(device, shader, nir_shader_clone(NULL, shader->pipeline_nir->nir), false);
+   shader->shader_cso = lvp_shader_compile(device, shader, nir_shader_clone(NULL, shader->pipeline_nir->nir));
 
    _mesa_hash_table_destroy(compiler.functions, NULL);
 }
