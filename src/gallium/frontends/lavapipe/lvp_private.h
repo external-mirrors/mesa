@@ -33,6 +33,7 @@
 
 #include "util/macros.h"
 #include "util/list.h"
+#include "util/u_call_once.h"
 #include "util/u_dynarray.h"
 #include "util/simple_mtx.h"
 #include "util/u_queue.h"
@@ -544,8 +545,8 @@ struct lvp_pipeline {
    bool disable_multisample;
    bool line_rectangular;
    bool library;
-   bool compiled;
    bool heaps;
+   util_once_flag compile_once;
 
    struct {
       const char *name;

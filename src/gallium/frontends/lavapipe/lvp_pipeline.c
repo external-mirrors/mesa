@@ -1082,12 +1082,11 @@ fail:
    return result;
 }
 
-void
-lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline)
+static void
+pipeline_shaders_compile(const void *data)
 {
+   struct lvp_pipeline *pipeline = (struct lvp_pipeline *)data;
    struct lvp_device *device = lvp_pipeline_device(pipeline);
-   if (pipeline->compiled)
-      return;
    for (uint32_t i = 0; i < ARRAY_SIZE(pipeline->shaders); i++) {
       if (!pipeline->shaders[i].pipeline_nir)
          continue;
@@ -1098,7 +1097,12 @@ lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline)
       pipeline->shaders[stage].shader_cso = lvp_shader_compile(device, &pipeline->shaders[stage],
          nir_shader_clone(NULL, pipeline->shaders[stage].pipeline_nir->nir));
    }
-   pipeline->compiled = true;
+}
+
+void
+lvp_pipeline_shaders_compile(struct lvp_pipeline *pipeline)
+{
+   util_call_once_data(&pipeline->compile_once, pipeline_shaders_compile, pipeline);
 }
 
 static VkResult
@@ -1124,6 +1128,7 @@ lvp_graphics_pipeline_create(
 
    vk_object_base_init(&device->vk, &pipeline->base,
                        VK_OBJECT_TYPE_PIPELINE);
+   pipeline->compile_once = (util_once_flag)UTIL_ONCE_FLAG_INIT;
    uint64_t t0 = os_time_get_nano();
    result = lvp_graphics_pipeline_init(pipeline, device, cache, pCreateInfo, flags);
    if (result != VK_SUCCESS) {
@@ -1204,7 +1209,6 @@ lvp_compute_pipeline_init(struct lvp_pipeline *pipeline,
 
    struct lvp_shader *shader = &pipeline->shaders[MESA_SHADER_COMPUTE];
    shader->shader_cso = lvp_shader_compile(device, shader, nir_shader_clone(NULL, shader->pipeline_nir->nir));
-   pipeline->compiled = true;
    return VK_SUCCESS;
 }
 
