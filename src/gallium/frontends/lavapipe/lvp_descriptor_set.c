@@ -326,11 +326,12 @@ get_texture_handle_bda(struct lvp_device *device, VkDeviceAddress address, size_
    struct pipe_sampler_view *view = ctx->create_sampler_view(ctx, pres, &templ);
 
    simple_mtx_lock(&device->queue.lock);
-
    struct lp_texture_handle *handle = llvmpipe_create_texture_handle(device->pscreen, view, NULL);
-   util_dynarray_append(&device->bda_texture_handles, handle);
-
    simple_mtx_unlock(&device->queue.lock);
+
+   simple_mtx_lock(&device->bda_lock);
+   util_dynarray_append(&device->bda_texture_handles, handle);
+   simple_mtx_unlock(&device->bda_lock);
 
    ctx->sampler_view_destroy(ctx, view);
    pipe_resource_reference(&pres, NULL);
@@ -350,11 +351,12 @@ get_image_handle_bda(struct lvp_device *device, VkDeviceAddress address, size_t 
    view.u.buf.size = range;
 
    simple_mtx_lock(&device->queue.lock);
-
    struct lp_texture_handle *handle = llvmpipe_create_image_handle(device->pscreen, &view);
-   util_dynarray_append(&device->bda_image_handles, handle);
-
    simple_mtx_unlock(&device->queue.lock);
+
+   simple_mtx_lock(&device->bda_lock);
+   util_dynarray_append(&device->bda_image_handles, handle);
+   simple_mtx_unlock(&device->bda_lock);
 
    pipe_resource_reference(&pres, NULL);
 
