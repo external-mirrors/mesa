@@ -2805,11 +2805,9 @@ lvp_sampler_init(struct lvp_device *device, struct lp_sampler_descriptor *desc, 
    state.reduction_mode = (enum pipe_tex_reduction_mode)vk_state->reduction_mode;
    memcpy(&state.border_color, &vk_state->border_color_value, sizeof(vk_state->border_color_value));
 
-   simple_mtx_lock(&device->queue.lock);
    struct lp_texture_handle *texture_handle = llvmpipe_create_texture_handle(device->pscreen, NULL, &state);
    desc->sampler_index = texture_handle->sampler_index;
    llvmpipe_delete_texture_handle(device->pscreen, texture_handle);
-   simple_mtx_unlock(&device->queue.lock);
 
    lp_jit_sampler_from_pipe(&desc->jit, &state);
 }

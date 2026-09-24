@@ -425,8 +425,6 @@ lvp_CreateImageView(VkDevice _device,
       }
    }
 
-   simple_mtx_lock(&device->queue.lock);
-
    for (unsigned view_plane = 0; view_plane < view->plane_count; view_plane++) {
       const uint8_t image_plane = view->planes[view_plane].image_plane;
       const struct vk_format_ycbcr_info *ycbcr_info =
@@ -446,8 +444,6 @@ lvp_CreateImageView(VkDevice _device,
       }
    }
 
-   simple_mtx_unlock(&device->queue.lock);
-
    *pView = lvp_image_view_to_handle(view);
 
    return VK_SUCCESS;
@@ -463,15 +459,12 @@ lvp_DestroyImageView(VkDevice _device, VkImageView _iview,
    if (!_iview)
      return;
 
-   simple_mtx_lock(&device->queue.lock);
-
    for (uint8_t plane = 0; plane < iview->plane_count; plane++) {
       llvmpipe_delete_image_handle(device->pscreen, iview->planes[plane].image_handle);
 
       pipe_resource_reference(&iview->planes[plane].sv.texture, NULL);
       llvmpipe_delete_texture_handle(device->pscreen, iview->planes[plane].texture_handle);
    }
-   simple_mtx_unlock(&device->queue.lock);
 
    vk_image_view_destroy(&device->vk, pAllocator, &iview->vk);
 }
@@ -725,8 +718,6 @@ lvp_CreateBufferView(VkDevice _device,
 
    view->pformat = lvp_vk_format_to_pipe_format(pCreateInfo->format);
 
-   simple_mtx_lock(&device->queue.lock);
-
    if (buffer->bo->bind & PIPE_BIND_SAMPLER_VIEW) {
       view->sv = lvp_create_samplerview_buffer(view);
       view->texture_handle = llvmpipe_create_texture_handle(device->pscreen, &view->sv, NULL);
@@ -736,8 +727,6 @@ lvp_CreateBufferView(VkDevice _device,
       view->iv = lvp_create_imageview_buffer(view);
       view->image_handle = llvmpipe_create_image_handle(device->pscreen, &view->iv);
    }
-
-   simple_mtx_unlock(&device->queue.lock);
 
    *pView = lvp_buffer_view_to_handle(view);
 
@@ -754,14 +743,10 @@ lvp_DestroyBufferView(VkDevice _device, VkBufferView bufferView,
    if (!bufferView)
      return;
 
-   simple_mtx_lock(&device->queue.lock);
-
    pipe_resource_reference(&view->sv.texture, NULL);
    llvmpipe_delete_texture_handle(device->pscreen, view->texture_handle);
 
    llvmpipe_delete_image_handle(device->pscreen, view->image_handle);
-
-   simple_mtx_unlock(&device->queue.lock);
 
    vk_buffer_view_destroy(&device->vk, pAllocator, &view->vk);
 }
