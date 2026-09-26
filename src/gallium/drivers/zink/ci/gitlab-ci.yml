@@ -320,7 +320,7 @@ zink-radv-navi31-valve-asan:
 
 .zink-radv-gfx1201-traces:
   extends:
-    - zink-radv-gfx1201-valve
+    - .zink-radv-gfx1201-valve
     - .zink-radv-valve-rules
     - .zink-trace-test
     - .piglit-traces-test
